@@ -1,3 +1,8 @@
+/* eslint-disable new-cap */
+/* eslint-disable vars-on-top */
+/* eslint-disable no-var */
+/* eslint-disable no-redeclare */
+/* eslint-disable no-useless-escape */
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 /**
@@ -19,18 +24,17 @@ class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
-    autoUpdater.autoDownload = false;
+    autoUpdater.autoDownload = true;
     autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.setFeedURL({
+      provider: 'github',
+      owner: 'yashwant-labana-biz',
+      repo: 'auto-update-app',
+    });
   }
 }
 
 let mainWindow: BrowserWindow | null = null;
-
-ipcMain.on('ipc-example', async (event, arg) => {
-  const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
-  console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
-});
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -93,6 +97,7 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
     }
+    autoUpdater.checkForUpdates();
   });
 
   mainWindow.on('closed', () => {
@@ -134,12 +139,44 @@ app
       // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) createWindow();
     });
-    autoUpdater.checkForUpdates();
   })
   .catch(console.log);
+
 autoUpdater.on('checking-for-update', () => {
-  mainWindow?.webContents.send('auto-update-message', 'checking-for-update');
+  console.log('calling check for update');
+
+  mainWindow?.webContents.send('auto-update-message', 'checking for update');
 });
 autoUpdater.on('update-available', () => {
-  mainWindow?.webContents.send('auto-update-message', 'update-available');
+  console.log('available...');
+  mainWindow?.webContents.send('auto-update-message', 'update available');
 });
+
+// autoUpdater.on('update-not-available', () => {
+//   log.log('update-not-available =======');
+//   mainWindow?.webContents.send('auto-update-message', {
+//     updateAvailable: false,
+//   });
+// });
+
+autoUpdater.on('error', (args) => {
+  log.log('error in updating app =======');
+  log.log(args);
+  mainWindow?.webContents.send('auto-update-message', args.message);
+});
+autoUpdater.on('update-downloaded', () => {
+  mainWindow?.webContents.send('auto-update-message', 'Update Downloaded');
+  app.relaunch();
+});
+ipcMain.on('get-version', (event) => {
+  const version = app.getVersion();
+  event.reply('get-version', version);
+});
+// autoUpdater.on('download-progress', (progressObj) => {
+//   log.log(progressObj.percent);
+//   log.log(Math.round(progressObj.percent));
+//   mainWindow?.webContents.send(
+//     'auto-update-message',
+//     Math.round(progressObj.percent),
+//   );
+// });
