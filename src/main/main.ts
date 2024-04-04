@@ -19,6 +19,7 @@ class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
+    autoUpdater.autoDownload = false;
     autoUpdater.checkForUpdatesAndNotify();
   }
 }
@@ -133,5 +134,12 @@ app
       // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) createWindow();
     });
+    autoUpdater.checkForUpdates();
   })
   .catch(console.log);
+autoUpdater.on('checking-for-update', () => {
+  mainWindow?.webContents.send('auto-update-message', 'checking-for-update');
+});
+autoUpdater.on('update-available', () => {
+  mainWindow?.webContents.send('auto-update-message', 'update-available');
+});

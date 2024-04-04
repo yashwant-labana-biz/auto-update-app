@@ -1,4 +1,6 @@
 {
+  "name": "auto-update-app",
+  "version": "1.0.0",
   "description": "A foundation for scalable desktop apps",
   "keywords": [
     "electron",
@@ -17,18 +19,18 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron-react-boilerplate/electron-react-boilerplate.git"
+    "url": "git+https://github.com/yashwant-labana-biz/auto-update-app.git"
   },
   "license": "MIT",
   "author": {
-    "name": "Electron React Boilerplate Maintainers",
+    "name": "biztech",
     "email": "electronreactboilerplate@gmail.com",
     "url": "https://electron-react-boilerplate.js.org"
   },
   "contributors": [
     {
-      "name": "Amila Welihinda",
-      "email": "amilajack@gmail.com",
+      "name": "yashwant",
+      "email": "x@gmail.com",
       "url": "https://github.com/amilajack"
     }
   ],
@@ -128,8 +130,8 @@
     "css-loader": "^6.8.1",
     "css-minimizer-webpack-plugin": "^5.0.1",
     "detect-port": "^1.5.1",
-    "electron": "^26.2.1",
-    "electron-builder": "^24.6.4",
+    "electron": "^18.2.3",
+    "electron-builder": "^22.14.5",
     "electron-devtools-installer": "^3.2.0",
     "electronmon": "^2.0.2",
     "eslint": "^8.49.0",
@@ -171,8 +173,8 @@
     "webpack-merge": "^5.9.0"
   },
   "build": {
-    "productName": "ElectronReact",
-    "appId": "org.erb.ElectronReact",
+    "productName": "auto-update-app",
+    "appId": "org.auto-update-app",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
     "files": [
@@ -230,7 +232,8 @@
     ],
     "publish": {
       "provider": "github",
-      "owner": "electron-react-boilerplate",
+      "owner": "biztechcs",
+      "releaseType": "release",
       "repo": "electron-react-boilerplate"
     }
   },
