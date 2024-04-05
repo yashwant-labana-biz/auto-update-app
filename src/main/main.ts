@@ -14,9 +14,10 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
+// import { UpdateSourceType, updateElectronApp } from 'update-electron-app';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
@@ -24,7 +25,7 @@ class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
-    autoUpdater.autoDownload = true;
+    autoUpdater.autoDownload = false;
     autoUpdater.checkForUpdatesAndNotify();
     autoUpdater.setFeedURL({
       provider: 'github',
@@ -148,8 +149,17 @@ autoUpdater.on('checking-for-update', () => {
   mainWindow?.webContents.send('auto-update-message', 'checking for update');
 });
 autoUpdater.on('update-available', () => {
-  console.log('available...');
-  mainWindow?.webContents.send('auto-update-message', 'update available');
+  // console.log('available...');
+  if (mainWindow) {
+    dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      buttons: ['yes', 'no'],
+      defaultId: 0,
+      title: 'Information',
+      message: 'Update- available',
+    });
+  }
+  mainWindow?.webContents.send('update-available', true);
 });
 
 // autoUpdater.on('update-not-available', () => {
@@ -166,6 +176,15 @@ autoUpdater.on('error', (args) => {
 });
 autoUpdater.on('update-downloaded', () => {
   mainWindow?.webContents.send('auto-update-message', 'Update Downloaded');
+  if (mainWindow) {
+    dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      buttons: ['yes', 'no'],
+      defaultId: 0,
+      title: 'Update-downloaded',
+      message: 'Your app Updated! Please restart Your app',
+    });
+  }
   app.relaunch();
 });
 ipcMain.on('get-version', (event) => {
@@ -180,3 +199,28 @@ ipcMain.on('get-version', (event) => {
 //     Math.round(progressObj.percent),
 //   );
 // });
+ipcMain.on('download-update', () => {
+  if (mainWindow) {
+    dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      buttons: ['yes', 'no'],
+      defaultId: 0,
+      title: 'Download',
+      message: 'Downloading your update',
+    });
+  }
+  try {
+    autoUpdater.downloadUpdate();
+  } catch (err) {
+    const error = err as Error;
+    if (mainWindow) {
+      dialog.showMessageBox(mainWindow, {
+        type: 'error',
+        buttons: ['yes', 'no'],
+        defaultId: 0,
+        title: 'Error',
+        message: error.message,
+      });
+    }
+  }
+});

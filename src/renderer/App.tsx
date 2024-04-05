@@ -5,12 +5,11 @@ import { useEffect, useState } from 'react';
 function Hello() {
   const [message, setMessage] = useState('');
   const [version, setVersion] = useState('');
+  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
   useEffect(() => {
-    window.electron.ipcRenderer.on('auto-update-message', (msg) => {
-      const msg1 = msg as string;
-      console.log(msg1);
-      alert(msg1);
-      setMessage(msg1);
+    window.electron.ipcRenderer.on('auto-update-message', (args) => {
+      const msg = args as string;
+      setMessage(msg);
     });
     window.electron.ipcRenderer.sendMessage('get-version');
     window.electron.ipcRenderer.on('get-version', (args) => {
@@ -18,10 +17,35 @@ function Hello() {
       setVersion(ver);
     });
   }, []);
+  const handleDownloadUpdate = () => {
+    window.electron.ipcRenderer.sendMessage('download-update');
+  };
+  useEffect(() => {
+    window.electron.ipcRenderer.on('update-available', (args) => {
+      const response = args as boolean;
+      setIsUpdateAvailable(response);
+    });
+  }, []);
   return (
     <div>
-      :Auto Update app:{message}
+      :Auto Update app:
       <p>Version:{version}</p>
+      <p>Message:{message}</p>
+      {isUpdateAvailable ? (
+        <div>
+          <p>Update Available</p>
+          <button
+            type="button"
+            onClick={() => {
+              handleDownloadUpdate();
+            }}
+          >
+            Download
+          </button>{' '}
+        </div>
+      ) : (
+        <div>No Update available</div>
+      )}
     </div>
   );
 }
